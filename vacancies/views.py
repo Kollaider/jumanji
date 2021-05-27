@@ -2,23 +2,34 @@ from django.http import HttpResponse, request
 from django.shortcuts import render
 from django.views import View
 
-def main_view(request):
+class MainView(View):
 
-    return HttpResponse('Это главная страница!')
+    def get(self, request):
 
-def vacancy_list_view(request):
-
-    return HttpResponse(f'Здесь будут вакансии списком!')
-
-def specialty_view(request, vacancy_name):
-
-    return HttpResponse('Здесь будут вакансии по специальности!')
+        return render(request, 'index.html')
 
 
-def company_view(request, company_id):
-    return HttpResponse('Здесь будет информация о компании!')
+class ListAllVacanciesView(View):
+
+    def get(self, request):
+
+        return render(request, 'vacancies.html')
 
 
-def vacancy_view(request, vacancy_id):
 
-    return HttpResponse('Здесь будет детальная информация о вакансии!')
+class ListSpecialtyView(View):
+
+    def get(self, request):
+        return render(request, 'vacancies.html')
+
+
+class CompanyView(View):
+
+    def get(self, request):
+        return render(request, 'company.html')
+
+
+class VacancyView(View):
+
+    def get(self, request):
+        return render(request, 'vacancy.html')
