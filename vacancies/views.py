@@ -1,12 +1,23 @@
+from django.db.models import Sum, Count
 from django.http import HttpResponse, request
 from django.shortcuts import render
 from django.views import View
+
+from .models import Company, Specialty, Vacancy
 
 class MainView(View):
 
     def get(self, request):
 
-        return render(request, 'index.html')
+        specialities = {}
+        for entry in Specialty.objects.all():
+            specialities[entry.title] = Vacancy.objects.filter(specialty__code=entry.code).count()
+
+        companies = {}
+        for entry in Company.objects.all():
+            companies[entry.logo] = Vacancy.objects.filter(company__name=entry.name).count()
+
+        return render(request, 'index.html', context={'specialities': specialities, 'companies': companies})
 
 
 class ListAllVacanciesView(View):
