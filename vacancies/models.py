@@ -8,6 +8,7 @@ class Company(models.Model):
     description = models.TextField()
     employee_count = models.IntegerField()
 
+
 class Specialty(models.Model):
     code = models.CharField(max_length=16)
     title = models.CharField(max_length=32)
@@ -24,6 +25,3 @@ class Vacancy(models.Model):
     salary_min = models.IntegerField()
     salary_max = models.IntegerField()
     published_at = models.DateField()
-
-    def __str__(self):
-        return f'Vacancy {self.pk}'

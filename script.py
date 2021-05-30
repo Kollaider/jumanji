@@ -9,29 +9,28 @@ from vacancies.models import Company, Specialty, Vacancy
 from data import jobs, companies, specialties
 
 
-
 def add_entries(collections):
     if collections is companies:
         for collection in collections:
             Company.objects.create(
-                name = collection['title'],
-                location = collection['location'],
-                logo = collection['logo'],
-                description = collection['description'],
-                employee_count = collection['employee_count']
+                name=collection['title'],
+                location=collection['location'],
+                logo=collection['logo'],
+                description=collection['description'],
+                employee_count=collection['employee_count']
             )
 
     elif collections is jobs:
         for collection in collections:
             Vacancy.objects.create(
-                title = collection['title'],
-                specialty = Specialty.objects.get(code=collection['specialty']),
-                company = Company.objects.get(id=collection['company']),
-                skills = collection['skills'],
-                description = collection['description'],
-                salary_min = collection['salary_from'],
-                salary_max = collection['salary_to'],
-                published_at = collection['posted']
+                title=collection['title'],
+                specialty=Specialty.objects.get(code=collection['specialty']),
+                company=Company.objects.get(id=collection['company']),
+                skills=collection['skills'],
+                description=collection['description'],
+                salary_min=collection['salary_from'],
+                salary_max=collection['salary_to'],
+                published_at=collection['posted']
             )
 
     elif collections is specialties:
@@ -40,7 +39,6 @@ def add_entries(collections):
                 code=collection['code'],
                 title=collection['title'],
             )
-
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter()
 def ru_pluralize(number: Union[int, str], arg: str = 'вакансия,вакансии,вакансий'):
     nominative_singular, genitive_singular, genitive_plural = arg.split(',')

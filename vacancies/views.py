@@ -1,11 +1,9 @@
-from django.db.models import Sum, Count
-from django.http import HttpResponse, request
-from django.shortcuts import render
+from django.http import HttpResponseNotFound, HttpResponseServerError, Http404
+from django.shortcuts import render, get_object_or_404
 from django.views import View
 
 from .models import Company, Specialty, Vacancy
 
-from django.http import HttpResponseNotFound
 
 class MainView(View):
 
@@ -19,9 +17,10 @@ class MainView(View):
         for entry in Company.objects.all():
             companies[entry.logo] = Vacancy.objects.filter(company__name=entry.name).count()
 
-        return render(request, 'index.html', context={'specialities': specialities,
-                                                      'companies': companies,
-                                                      })
+        return render(request, 'index.html', context={
+            'specialities': specialities,
+            'companies': companies
+        })
 
 
 class ListAllVacanciesView(View):
@@ -29,41 +28,56 @@ class ListAllVacanciesView(View):
     def get(self, request):
         vacancies = Vacancy.objects.all()
 
-        return render(request, 'vacancies.html', context={'vacancies': vacancies,
-                                                          'title': 'Все вакансии'})
+        return render(request, 'vacancies.html', context={
+            'vacancies': vacancies,
+            'title': 'Все вакансии'
+        })
 
 
 class ListSpecialtyView(View):
 
     def get(self, request, specialty):
-        vacancies = Vacancy.objects.filter(specialty__code=specialty)
-        if not len(vacancies):
-            return HttpResponseNotFound(f'Специальности с именем {specialty} нам не известено!')
 
-        return render(request, 'vacancies.html', context={'vacancies': vacancies,
-                                                          'title': specialty.capitalize()})
+        vacancies = Vacancy.objects.filter(specialty__code=specialty)
+
+        print(vacancies)
+        if not len(vacancies):
+            raise Http404(f'Специальности с именем {specialty} нам не известено!')
+
+        return render(request, 'vacancies.html', context={
+            'vacancies': vacancies,
+            'title': specialty.capitalize()
+        })
 
 
 class CompanyView(View):
 
     def get(self, request, company_id):
-
-        company = Company.objects.get(id=6)
+        company = get_object_or_404(Company, pk=1)
 
         vacancies = Vacancy.objects.filter(company__name=company.name)
 
-        return render(request, 'company.html', context={'company': company,
-                                                        'vacancies': vacancies})
+        return render(request, 'company.html', context={
+            'company': company,
+            'vacancies': vacancies
+        })
 
 
 class VacancyView(View):
 
     def get(self, request, vacancy_id):
 
-        vacancy = Vacancy.objects.get(id=4)
+        vacancy = get_object_or_404(Vacancy, id=1)
+        company = get_object_or_404(Company, name=vacancy.company.name)
 
-        print(vacancy.company.name)
-        company = Company.objects.get(name=vacancy.company.name)
-        print(company)
-        return render(request, 'vacancy.html', context={'vacancy': vacancy,
-                                                        'company': company})
+        return render(request, 'vacancy.html', context={
+            'vacancy': vacancy,
+            'company': company})
+
+
+def custom_handler404(request, exception):
+    return HttpResponseNotFound('Здесь ничего нет')
+
+
+def custom_handler500(request):
+    return HttpResponseServerError('На сервере что-то сломалось')
