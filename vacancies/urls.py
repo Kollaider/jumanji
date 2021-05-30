@@ -5,7 +5,7 @@ from vacancies import views
 
 urlpatterns = [
     path('', views.ListAllVacanciesView.as_view()),
-    path('22', views.VacancyView.as_view()),
-    path('cat/frontend', views.ListSpecialtyView.as_view()),
+    path('<int:vacancy_id>', views.VacancyView.as_view()),
+    path('cat/<str:specialty>', views.ListSpecialtyView.as_view()),
 
 ]

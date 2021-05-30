@@ -5,6 +5,8 @@ from django.views import View
 
 from .models import Company, Specialty, Vacancy
 
+from django.http import HttpResponseNotFound
+
 class MainView(View):
 
     def get(self, request):
@@ -17,30 +19,51 @@ class MainView(View):
         for entry in Company.objects.all():
             companies[entry.logo] = Vacancy.objects.filter(company__name=entry.name).count()
 
-        return render(request, 'index.html', context={'specialities': specialities, 'companies': companies})
+        return render(request, 'index.html', context={'specialities': specialities,
+                                                      'companies': companies,
+                                                      })
 
 
 class ListAllVacanciesView(View):
 
     def get(self, request):
+        vacancies = Vacancy.objects.all()
 
-        return render(request, 'vacancies.html')
-
+        return render(request, 'vacancies.html', context={'vacancies': vacancies,
+                                                          'title': 'Все вакансии'})
 
 
 class ListSpecialtyView(View):
 
-    def get(self, request):
-        return render(request, 'vacancies.html')
+    def get(self, request, specialty):
+        vacancies = Vacancy.objects.filter(specialty__code=specialty)
+        if not len(vacancies):
+            return HttpResponseNotFound(f'Специальности с именем {specialty} нам не известено!')
+
+        return render(request, 'vacancies.html', context={'vacancies': vacancies,
+                                                          'title': specialty.capitalize()})
 
 
 class CompanyView(View):
 
-    def get(self, request):
-        return render(request, 'company.html')
+    def get(self, request, company_id):
+
+        company = Company.objects.get(id=6)
+
+        vacancies = Vacancy.objects.filter(company__name=company.name)
+
+        return render(request, 'company.html', context={'company': company,
+                                                        'vacancies': vacancies})
 
 
 class VacancyView(View):
 
-    def get(self, request):
-        return render(request, 'vacancy.html')
+    def get(self, request, vacancy_id):
+
+        vacancy = Vacancy.objects.get(id=4)
+
+        print(vacancy.company.name)
+        company = Company.objects.get(name=vacancy.company.name)
+        print(company)
+        return render(request, 'vacancy.html', context={'vacancy': vacancy,
+                                                        'company': company})
