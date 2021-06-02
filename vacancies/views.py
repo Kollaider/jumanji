@@ -1,78 +1,81 @@
+from django.db.models import Count
 from django.http import HttpResponseNotFound, HttpResponseServerError, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.views.generic import TemplateView, ListView, DetailView
 
 from .models import Company, Specialty, Vacancy
 
 
-class MainView(View):
+class MainView(TemplateView):
+    template_name = 'index.html'
 
-    def get(self, request):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['specialties'] = Specialty.objects.annotate(count=Count('vacancies'))
+        context['companies'] = Company.objects.annotate(count=Count('vacancies'))
 
-        specialities = {}
-        for entry in Specialty.objects.all():
-            specialities[entry.title] = Vacancy.objects.filter(specialty__code=entry.code).count()
-
-        companies = {}
-        for entry in Company.objects.all():
-            companies[entry.logo] = Vacancy.objects.filter(company__name=entry.name).count()
-
-        return render(request, 'index.html', context={
-            'specialities': specialities,
-            'companies': companies
-        })
+        return context
 
 
-class ListAllVacanciesView(View):
+class DetailCompanyView(DetailView):
+    model = Company
+    context_object_name = 'company'
+    template_name = 'company.html'
 
-    def get(self, request):
-        vacancies = Vacancy.objects.all()
+    def get_queryset(self):
 
-        return render(request, 'vacancies.html', context={
-            'vacancies': vacancies,
-            'title': 'Все вакансии'
-        })
+        return Vacancy.objects.filter(vacancies__name=self.model.name)
+            # self.model.objects.prefetch_related('vacancies', 'vacancies__specialty')
 
-
-class ListSpecialtyView(View):
-
-    def get(self, request, specialty):
-
-        vacancies = Vacancy.objects.filter(specialty__code=specialty)
-
-        print(vacancies)
-        if not len(vacancies):
-            raise Http404(f'Специальности с именем {specialty} нам не известено!')
-
-        return render(request, 'vacancies.html', context={
-            'vacancies': vacancies,
-            'title': specialty.capitalize()
-        })
+    # def get(self, request, company_id):
+    #     company = get_object_or_404(Company, pk=1)
+    #
+    #     vacancies = Vacancy.objects.filter(company__name=company.name)
+    #
+    #     return render(request, 'company.html', context={
+    #         'company': company,
+    #         'vacancies': vacancies
+    #     })
 
 
-class CompanyView(View):
-
-    def get(self, request, company_id):
-        company = get_object_or_404(Company, pk=1)
-
-        vacancies = Vacancy.objects.filter(company__name=company.name)
-
-        return render(request, 'company.html', context={
-            'company': company,
-            'vacancies': vacancies
-        })
+class DetailVacancyView(DetailView):
+    model = Vacancy
+    context_object_name = 'vacancy'
+    template_name = 'vacancy.html'
+    queryset = model.objects.select_related('specialty', 'company')
 
 
-class VacancyView(View):
+class ListVacanciesView(ListView):
+    model = Vacancy
+    context_object_name = 'vacancies'
+    template_name = 'vacancies.html'
 
-    def get(self, request, vacancy_id):
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vacancies_title'] = 'Все вакансии'
 
-        vacancy = get_object_or_404(Vacancy, id=1)
-        company = get_object_or_404(Company, name=vacancy.company.name)
+        return context
 
-        return render(request, 'vacancy.html', context={
-            'vacancy': vacancy,
-            'company': company})
+
+class ListSpecialtyView(ListView):
+    model = Vacancy
+    context_object_name = 'vacancies'
+    template_name = 'vacancies.html'
+
+    def get_queryset(self):
+        return (
+            self.model.objects
+                .filter(specialty__code=self.kwargs['specialty'])
+                .select_related('specialty', 'company')
+        )
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vacancies_title'] = self.kwargs['specialty']
+
+        return context
+
 
 
 def custom_handler404(request, exception):

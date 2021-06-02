@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.MainView.as_view()),
     path('vacancies/', include('vacancies.urls')),
-    path('companies/<int:company_id>', views.CompanyView.as_view())
+    path('companies/<int:pk>', views.DetailCompanyView.as_view())
 
 ]
 
