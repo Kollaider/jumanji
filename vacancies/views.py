@@ -1,8 +1,6 @@
 from django.db.models import Count
-from django.http import HttpResponseNotFound, HttpResponseServerError, Http404
-from django.shortcuts import render, get_object_or_404
-from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView
+from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.views.generic import DetailView, ListView, TemplateView
 
 from .models import Company, Specialty, Vacancy
 
@@ -24,19 +22,7 @@ class DetailCompanyView(DetailView):
     template_name = 'company.html'
 
     def get_queryset(self):
-
-        return Vacancy.objects.filter(vacancies__name=self.model.name)
-            # self.model.objects.prefetch_related('vacancies', 'vacancies__specialty')
-
-    # def get(self, request, company_id):
-    #     company = get_object_or_404(Company, pk=1)
-    #
-    #     vacancies = Vacancy.objects.filter(company__name=company.name)
-    #
-    #     return render(request, 'company.html', context={
-    #         'company': company,
-    #         'vacancies': vacancies
-    #     })
+        return self.model.objects.prefetch_related('vacancies', 'vacancies__specialty')
 
 
 class DetailVacancyView(DetailView):
@@ -75,7 +61,6 @@ class ListSpecialtyView(ListView):
         context['vacancies_title'] = self.kwargs['specialty']
 
         return context
-
 
 
 def custom_handler404(request, exception):

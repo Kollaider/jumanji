@@ -8,6 +8,7 @@ class Company(models.Model):
     description = models.TextField()
     employee_count = models.IntegerField()
 
+
 class Specialty(models.Model):
     code = models.CharField(max_length=16)
     title = models.CharField(max_length=32)

@@ -1,4 +1,4 @@
-"""jumanji URL Configuration
+"""jumanji URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -14,16 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+
 from vacancies import views
 from vacancies.views import custom_handler404, custom_handler500
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.MainView.as_view()),
     path('vacancies/', include('vacancies.urls')),
-    path('companies/<int:pk>', views.DetailCompanyView.as_view())
+    path('companies/<int:pk>', views.DetailCompanyView.as_view()),
 
 ]
 

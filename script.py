@@ -5,8 +5,8 @@ import django
 os.environ['DJANGO_SETTINGS_MODULE'] = 'jumanji.settings'
 django.setup()
 
+from data import companies, jobs, specialties
 from vacancies.models import Company, Specialty, Vacancy
-from data import jobs, companies, specialties
 
 
 def add_entries(collections):
@@ -17,7 +17,7 @@ def add_entries(collections):
                 location=collection['location'],
                 logo=collection['logo'],
                 description=collection['description'],
-                employee_count=collection['employee_count']
+                employee_count=collection['employee_count'],
             )
 
     elif collections is jobs:
@@ -30,7 +30,7 @@ def add_entries(collections):
                 description=collection['description'],
                 salary_min=collection['salary_from'],
                 salary_max=collection['salary_to'],
-                published_at=collection['posted']
+                published_at=collection['posted'],
             )
 
     elif collections is specialties:
