@@ -12,8 +12,8 @@ class MainView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['specialties'] = Specialty.objects.annotate(count=Count('vacancies'))
         context['companies'] = Company.objects.annotate(count=Count('vacancies'))
-
         return context
+
 
 
 class DetailCompanyView(DetailView):
@@ -34,13 +34,13 @@ class DetailVacancyView(DetailView):
 
 class ListVacanciesView(ListView):
     model = Vacancy
-    context_object_name = 'vacancies'
-    template_name = 'vacancies.html'
+    context_object_name = "vacancies"
+    template_name = "vacancies.html"
+    queryset = model.objects.select_related("specialty", "company")
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['vacancies_title'] = 'Все вакансии'
-
+        context["vacancies_title"] = "Все вакансии"
         return context
 
 

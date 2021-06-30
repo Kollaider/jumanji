@@ -16,14 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from vacancies import views
 from vacancies.views import custom_handler404, custom_handler500
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.MainView.as_view()),
-    path('vacancies/', include('vacancies.urls')),
-    path('companies/<int:pk>', views.DetailCompanyView.as_view()),
+
+    path('', include('vacancies.urls')),
+
 
 ]
 
